@@ -1,6 +1,9 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
 import 'package:bookstore_mad_project/commonWidget/round_button.dart';
+import 'package:bookstore_mad_project/in_app_reading/BookRead.dart';
 import 'package:bookstore_mad_project/view/cart/cart.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +12,42 @@ class BookDetailScreen extends StatelessWidget {
   final Map Obj;
 
   const BookDetailScreen({super.key, required this.Obj});
+
+  Future<void> addToWishlist(
+      BuildContext context, Map<String, dynamic> book) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    CollectionReference wishlistCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wishlist');
+
+    try {
+      await wishlistCollection.add({
+        'name': book['name'],
+        'author': book['author'],
+        'description': book['description'],
+        'img': book['img'],
+        'price': book['price'],
+        'rating': book['rating'],
+        'category': book['category'],
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Book added to wishlist successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding book to wishlist: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +101,13 @@ class BookDetailScreen extends StatelessWidget {
               const SizedBox(height: 15.0),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BookReadingScreen(
+                                bookName: Obj["name"].toString())));
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.pink, // Example color
                     padding: const EdgeInsets.symmetric(
@@ -90,7 +135,9 @@ class BookDetailScreen extends StatelessWidget {
                   children: [
                     Flexible(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          addToWishlist(context, Obj as Map<String, dynamic>);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.pink, // Example color
                           padding: const EdgeInsets.symmetric(
@@ -187,7 +234,7 @@ class BookDetailScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
-                    "A love worth fighting for. A dream worth dying for. An ending worth waiting for.\n\nIt’s been two months since the Fates were freed from a deck of cards, two months since Legend claimed the throne for his own, and two months since Tella discovered the boy she fell in love with doesn’t really exist.\n\nWith lives, empires, and hearts hanging in the balance, Tella must decide if she’s going to trust Legend or a former enemy. After uncovering a secret that upends her life, Scarlett will need to do the impossible. And Legend has a choice to make that will forever change and define him.\n\nCaraval is over, but perhaps the greatest game of all has begun. There are no spectators this time—only those who will win, and those who will lose everything.",
+                    Obj["description"].toString(),
                     style: TextStyle(
                       fontSize: 13,
                       color: PColor.text.withOpacity(0.7),

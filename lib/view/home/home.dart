@@ -23,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
   List topPickContent = [];
+  List BestSellerContent = [];
+  List RecentContent = [];
   bool _isLoading = true;
 
   @override
@@ -34,50 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchBooks() async {
     List<Map<String, dynamic>> books =
         await _firestoreService.getBooksByCategory('Top_Picks');
+    List<Map<String, dynamic>> Bbooks =
+        await _firestoreService.getBooksByCategory('Best');
+    List<Map<String, dynamic>> Rbooks =
+        await _firestoreService.getBooksByCategory('Recent');
     setState(() {
       topPickContent = books;
+      BestSellerContent = Bbooks;
+      RecentContent = Rbooks;
+
       _isLoading = false;
     });
   }
 
-  List BestSellerContent = [
-    {
-      "name": "Reveal Me",
-      "author": "Tahereh Mafi",
-      "img": "assets/img/b3.jpg",
-      "rating": 4.7
-    },
-    {
-      "name": "Powerless",
-      "author": "Lauren Roberts",
-      "img": "assets/img/b1.jpg",
-      "rating": 5.0
-    },
-    {
-      "name": "Six of Crows",
-      "author": "Leigh Bardugo",
-      "img": "assets/img/b2.jpg",
-      "rating": 4.5
-    },
-    {
-      "name": "Girls Of Paper And Fire ",
-      "author": "Natasha Ngan",
-      "img": "assets/img/b4.jpg",
-      "rating": 4.2
-    },
-    {
-      "name": "Where Dreams Descend",
-      "author": "Janella Angeles ",
-      "img": "assets/img/b5.jpg",
-      "rating": 3.8
-    },
-    {
-      "name": "The Ballad Of Never After",
-      "author": "Stephanie Garber",
-      "img": "assets/img/b6.jpg",
-      "rating": 4
-    },
-  ];
   List GenreContent = [
     {
       "name": "Fantasy",
@@ -92,44 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       "img": "assets/img/file.png",
     },
   ];
-  List RecentContent = [
-    {
-      "name": "Believe Me",
-      "author": "Tahereh Mafi",
-      "img": "assets/img/r1.jpg",
-      "rating": 4.7
-    },
-    {
-      "name": "Rewitched",
-      "author": "Lucy Jane Wood",
-      "img": "assets/img/r2.jpg",
-      "rating": 5.0
-    },
-    {
-      "name": "Intuitive Healing For Women",
-      "author": "Sarah Hale",
-      "img": "assets/img/r3.jpg",
-      "rating": 4.5
-    },
-    {
-      "name": "Love from Mecca to Medina",
-      "author": "S.K. Ali",
-      "img": "assets/img/r44.jpg",
-      "rating": 4.2
-    },
-    {
-      "name": "Wild Love",
-      "author": "Elsie Silver ",
-      "img": "assets/img/r5.jpg",
-      "rating": 3.8
-    },
-    {
-      "name": "A Dark and Drowning Tide",
-      "author": "Allison Saft",
-      "img": "assets/img/r6.jpg",
-      "rating": 4
-    },
-  ];
+
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
@@ -200,9 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: media.width,
                       height: media.width * 0.8,
                       child: topPickContent.isEmpty
-                          ? Center(
-                              child:
-                                  CircularProgressIndicator()) // Loading indicator
+                          ? const Center(child: CircularProgressIndicator())
                           : CarouselSlider.builder(
                               itemCount: topPickContent.length,
                               itemBuilder: (BuildContext context, int itemIndex,
@@ -240,14 +172,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(
                       height: media.width,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: BestSellerContent.length,
-                        itemBuilder: ((context, index) {
-                          var bObj = BestSellerContent[index] as Map? ?? {};
-                          return BestSellerContain(bObj: bObj);
-                        }),
-                      ),
+                      child: BestSellerContent.isEmpty
+                          ? Center(
+                              child:
+                                  CircularProgressIndicator()) // Loading indicator
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: BestSellerContent.length,
+                              itemBuilder: ((context, index) {
+                                var bObj =
+                                    BestSellerContent[index] as Map? ?? {};
+                                return BestSellerContain(bObj: bObj);
+                              }),
+                            ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -298,14 +235,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(
                       height: media.width,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: RecentContent.length,
-                        itemBuilder: ((context, index) {
-                          var rObj = RecentContent[index] as Map? ?? {};
-                          return BestSellerContain(bObj: rObj);
-                        }),
-                      ),
+                      child: RecentContent.isEmpty
+                          ? Center(
+                              child:
+                                  CircularProgressIndicator()) // Loading indicator
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: RecentContent.length,
+                              itemBuilder: ((context, index) {
+                                var rObj = RecentContent[index] as Map? ?? {};
+                                return BestSellerContain(bObj: rObj);
+                              }),
+                            ),
                     ),
                     SizedBox(
                       height: media.width * 0.01,

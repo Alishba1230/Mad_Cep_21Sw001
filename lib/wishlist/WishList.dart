@@ -1,40 +1,70 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class WishListScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> books = [
-    {
-      'name': "Pride and Prejudice",
-      'author': "Jane Austen",
-      'rating': 4.03,
-      'price': 40,
-      'img': 'assets/img/2.jpg',
-    },
-    {
-      'name': "A Curse of True Love",
-      'author': "Stephanie Garber",
-      'rating': 4.26,
-      'price': 34,
-      'img': 'assets/img/3.jpg',
-    },
-    {
-      'name': "Finale",
-      'author': "Stephanie Garber",
-      'rating': 4.33,
-      'price': 37,
-      'img': 'assets/img/1.jpg',
-    },
-    {
-      'name': "Powerless",
-      'author': "Lauren Roberts",
-      'rating': 4.33,
-      'price': 45,
-      'img': 'assets/img/b1.jpg',
-    },
+class WishListScreen extends StatefulWidget {
+  @override
+  State<WishListScreen> createState() => _WishListScreenState();
+}
+
+class _WishListScreenState extends State<WishListScreen> {
+  List<Map<String, dynamic>> books = [
+    // {
+    //   'name': "Pride and Prejudice",
+    //   'author': "Jane Austen",
+    //   'rating': 4.03,
+    //   'price': 40,
+    //   'img': 'assets/img/2.jpg',
+    // },
+    // {
+    //   'name': "A Curse of True Love",
+    //   'author': "Stephanie Garber",
+    //   'rating': 4.26,
+    //   'price': 34,
+    //   'img': 'assets/img/3.jpg',
+    // },
+    // {
+    //   'name': "Finale",
+    //   'author': "Stephanie Garber",
+    //   'rating': 4.33,
+    //   'price': 37,
+    //   'img': 'assets/img/1.jpg',
+    // },
+    // {
+    //   'name': "Powerless",
+    //   'author': "Lauren Roberts",
+    //   'rating': 4.33,
+    //   'price': 45,
+    //   'img': 'assets/img/b1.jpg',
+    // },
   ];
+  @override
+  void initState() {
+    super.initState();
+    fetchWishlist();
+  }
+
+  Future<void> fetchWishlist() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    CollectionReference wishlistCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wishlist');
+
+    QuerySnapshot querySnapshot = await wishlistCollection.get();
+    List<Map<String, dynamic>> wishlistBooks = [];
+
+    for (var doc in querySnapshot.docs) {
+      wishlistBooks.add(doc.data() as Map<String, dynamic>);
+    }
+    setState(() {
+      books = wishlistBooks;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +72,13 @@ class WishListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "WishList",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         flexibleSpace: Stack(
           children: [
-            // Background image
             Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
@@ -59,9 +88,8 @@ class WishListScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Background color overlay for readability
             Container(
-              color: Colors.black.withOpacity(0.3), // Adjust opacity for effect
+              color: Colors.black.withOpacity(0.3),
             ),
           ],
         ),
@@ -94,7 +122,7 @@ class WishListScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       const SizedBox(
-                        height: 45,
+                        height: 15,
                       ),
                       Text(
                         books[index]["name"].toString(),
@@ -131,6 +159,18 @@ class WishListScreen extends StatelessWidget {
                       ),
                       const SizedBox(
                         height: 3,
+                      ),
+                      const SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        books[index]['description'].toString(),
+                        maxLines: 2,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: PColor.subtitle,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700),
                       ),
                       IgnorePointer(
                         ignoring: true,

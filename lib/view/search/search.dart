@@ -4,6 +4,7 @@ import 'package:bookstore_mad_project/commonWidget/search_grid.dart';
 import 'package:bookstore_mad_project/commonWidget/search_row.dart';
 import 'package:bookstore_mad_project/view/search/FSearch.dart';
 import 'package:bookstore_mad_project/view/search/filter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +17,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController search = TextEditingController();
+  List argument = [];
   List tags = ["Genre", "New Release", "Mystery", "Romance", "Fantasy"];
   List SGenreContent = [
     {
@@ -43,32 +45,26 @@ class _SearchScreenState extends State<SearchScreen> {
       "img": "assets/img/gen6.jpg",
     },
   ];
-  List ResultSearch = [
-    {
-      "name": "The Naming Song",
-      "author": "Jedediah Berry",
-      "img": "assets/img/sr1.jpg",
-      "descripton":
-          "There's nothing more dangerous than an unnamed thing When the words went away, the world changed.",
-      "rating": 3.89
-    },
-    {
-      "name": "The Fallen Fruit",
-      "author": "Shawntelle Madison",
-      "img": "assets/img/sr2.jpg",
-      "descripton":
-          "Combining history and fantasy, a sweeping multi-generational epic about a woman who travels through time to end a family curse that has plagued her ancestors for generations.",
-      "rating": 3.78
-    },
-    {
-      "name": "Songlight",
-      "author": "Moira Buffini",
-      "img": "assets/img/sr3.jpg",
-      "descripton":
-          "Star-crossed lovers, against-all-odds friendship, and a brutally unforgiving world make this first in a trilogy utterly unforgettable.",
-      "rating": 4.23
-    },
-  ];
+  List ResultSearch = [];
+  Future<void> fetchBookData() async {
+    CollectionReference booksCollection =
+        FirebaseFirestore.instance.collection('books');
+
+    List fetchedBooks = [];
+
+    for (String bookName in argument) {
+      QuerySnapshot querySnapshot =
+          await booksCollection.where('name', isEqualTo: bookName).get();
+
+      for (var doc in querySnapshot.docs) {
+        fetchedBooks.add(doc.data() as Map<String, dynamic>);
+      }
+    }
+
+    setState(() {
+      ResultSearch = fetchedBooks;
+    });
+  }
 
   int selectTag = 0;
   @override
@@ -92,8 +88,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   onTap: () async {
                     await Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => FSearchScreen(
-                        didSearch: (sText) {
+                        didSearch: (sText, foundbooks) {
                           search.text = sText;
+                          argument = foundbooks;
+                          fetchBookData();
                           if (mounted) {
                             setState(() {});
                           }
@@ -221,13 +219,14 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           if (search.text.isNotEmpty)
             Expanded(
-                child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    itemCount: ResultSearch.length,
-                    itemBuilder: (context, index) {
-                      var sObj = ResultSearch[index] as Map? ?? {};
-                      return SearchRow(sObj: sObj);
-                    })),
+              child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  itemCount: ResultSearch.length,
+                  itemBuilder: (context, index) {
+                    var sObj = ResultSearch[index] as Map? ?? {};
+                    return SearchRow(sObj: sObj);
+                  }),
+            ),
         ],
       ),
     );

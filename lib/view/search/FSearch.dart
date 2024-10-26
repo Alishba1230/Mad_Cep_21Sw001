@@ -1,10 +1,12 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
+import 'package:bookstore_mad_project/commonWidget/search_row.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class FSearchScreen extends StatefulWidget {
-  final Function(String)? didSearch;
+  final Function(String, List)? didSearch;
   const FSearchScreen({super.key, this.didSearch});
 
   @override
@@ -13,12 +15,50 @@ class FSearchScreen extends StatefulWidget {
 
 class _FSearchScreenState extends State<FSearchScreen> {
   TextEditingController search = TextEditingController();
-  List pSearch = ["Search 1", "Search 2", "Search 3"];
+  List AllBooks = [];
+  List pSearch = [];
   List resultSearch = [
     "The Naming song",
     "The Fallen Fruit",
     "Pride and Prejudice"
   ];
+  List foundBooks = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchBookNames();
+  }
+
+  void _runFilter(String enterKeyword) {
+    List Result = [];
+    if (enterKeyword.isEmpty) {
+      Result = [];
+    } else {
+      Result = AllBooks.where(
+              (book) => book.toLowerCase().contains(enterKeyword.toLowerCase()))
+          .toList();
+    }
+    setState(() {
+      foundBooks = Result;
+    });
+  }
+
+  Future<void> fetchBookNames() async {
+    List bookNames = [];
+    try {
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('books').get();
+      for (var doc in querySnapshot.docs) {
+        bookNames.add(doc['name']);
+      }
+      setState(() {
+        AllBooks = bookNames;
+      });
+    } catch (e) {
+      print("Error fetching names: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +67,6 @@ class _FSearchScreenState extends State<FSearchScreen> {
           elevation: 0,
           leadingWidth: 0,
           leading: Container(),
-          //automaticallyImplyLeading: false,
           title: Row(
             children: [
               Expanded(
@@ -38,7 +77,7 @@ class _FSearchScreenState extends State<FSearchScreen> {
                   child: TextFormField(
                     controller: search,
                     onChanged: (value) {
-                      setState(() {});
+                      _runFilter(value);
                     },
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(
@@ -85,7 +124,7 @@ class _FSearchScreenState extends State<FSearchScreen> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 23),
                 child: Text(
-                  "Previous Searches",
+                  "",
                   style: TextStyle(
                       color: PColor.subtitle,
                       fontSize: 13,
@@ -96,22 +135,23 @@ class _FSearchScreenState extends State<FSearchScreen> {
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                 itemCount:
-                    search.text.isEmpty ? pSearch.length : resultSearch.length,
+                    search.text.isEmpty ? pSearch.length : foundBooks.length,
                 itemBuilder: (context, index) {
                   var resultText = (search.text.isEmpty
                           ? pSearch
-                          : resultSearch)[index] as String? ??
+                          : foundBooks)[index] as String? ??
                       "";
                   return GestureDetector(
                     onTap: () {
                       if (widget.didSearch != null) {
-                        widget.didSearch!(resultText);
+                        widget.didSearch!(resultText, foundBooks);
                       }
+
                       Navigator.pop(context);
                     },
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 15),
                       child: Row(
                         children: [
                           const SizedBox(

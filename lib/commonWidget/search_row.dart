@@ -1,12 +1,51 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
 import 'package:bookstore_mad_project/commonWidget/round_button.dart';
+import 'package:bookstore_mad_project/view/Book_Profile/Book_profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class SearchRow extends StatelessWidget {
   final Map sObj;
   const SearchRow({super.key, required this.sObj});
+  Future<void> addToWishlist(
+      BuildContext context, Map<String, dynamic> book) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    CollectionReference wishlistCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wishlist');
+
+    try {
+      await wishlistCollection.add({
+        'name': book['name'],
+        'author': book['author'],
+        'description': book['description'],
+        'img': book['img'],
+        'price': book['price'],
+        'rating': book['rating'],
+        'category': book['category'],
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Book added to wishlist successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding book to wishlist: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +56,21 @@ class SearchRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Image.asset(
-              sObj["img"].toString(),
-              width: media.width * 0.28,
-              height: media.width * 0.3 * 1.6,
-              fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BookDetailScreen(Obj: sObj)));
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.asset(
+                sObj["img"].toString(),
+                width: media.width * 0.28,
+                height: media.width * 0.3 * 1.6,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           const SizedBox(
@@ -83,8 +130,8 @@ class SearchRow extends StatelessWidget {
                 height: 2,
               ),
               Text(
-                sObj["descripton"].toString(),
-                maxLines: 4,
+                sObj["description"].toString(),
+                maxLines: 3,
                 textAlign: TextAlign.left,
                 style: TextStyle(
                   color: PColor.subtitle,
@@ -141,7 +188,9 @@ class SearchRow extends StatelessWidget {
                             )
                           ]),
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          addToWishlist(context, sObj as Map<String, dynamic>);
+                        },
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             foregroundColor: PColor.text,
