@@ -1,149 +1,171 @@
-import 'package:bookstore_mad_project/common/color_extension.dart';
-import 'package:bookstore_mad_project/view/home/home.dart';
-import 'package:bookstore_mad_project/view/main_tab/main_tab.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:bookstore_mad_project/common/color_extension.dart';
+import 'cart_provider.dart'; // Import your Cart provider
 
-class BookCartScreen extends StatelessWidget {
-  final Map? bookInfo;
+class BookCartScreen extends StatefulWidget {
+  @override
+  State<BookCartScreen> createState() => _BookCartScreenState();
+}
 
-  const BookCartScreen({super.key, this.bookInfo});
-
+class _BookCartScreenState extends State<BookCartScreen> {
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<Cart>(context);
+
+    int quantity = 1;
+
     return Scaffold(
       backgroundColor: PColor.backG,
-      body: Stack(
-        children: [
-          Container(
-            height: 85,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/img/download (2).jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: const Text(
-              'Book Blossom Cart',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainTabScreen()));
-              },
-              icon: Icon(Icons.arrow_back),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: bookInfo != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 100,
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Book Blossom Cart',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
+        ),
+        centerTitle: true,
+      ),
+      body: cart.cartItems.isNotEmpty
+          ? ListView.builder(
+              itemCount: cart.cartItems.length,
+              itemBuilder: (context, index) {
+                final book = cart.cartItems[index];
+                int quantity = book['quantity'] ?? 1;
+                int price = book['price'];
+                return Container(
+                  decoration: const BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black38,
+                        offset: Offset(0, 5),
+                        blurRadius: 2,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: DecorationImage(
+                              image: AssetImage(book['img']),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
-                        elevation: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 100,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  image: DecorationImage(
-                                    image:
-                                        AssetImage(bookInfo!['img'].toString()),
-                                    fit: BoxFit.cover,
-                                  ),
+                              Text(
+                                book['name'],
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      bookInfo!['name'].toString(),
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
+                              const SizedBox(height: 8),
+                              Text(
+                                book['author'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Text(
+                                    '\$${price * quantity}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      bookInfo!['author'].toString(),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '\$${bookInfo!['price'].toString()}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          quantity += 1;
+                                        });
+                                        cart.updateQuantity(book, quantity);
+                                      },
+                                      icon: Icon(Icons.add)),
+                                  IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (quantity > 1) {
+                                            quantity -= 1;
+                                          } else {
+                                            cart.removeFromCart(book);
+                                          }
+                                        });
+                                        cart.updateQuantity(book, quantity);
+                                        if (quantity == 0) {
+                                          cart.removeFromCart(book);
+                                        }
+                                      },
+                                      icon: Icon(Icons.remove)),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  cart.removeFromCart(
+                                      book); // Remove item from cart
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pink,
+                                  minimumSize: const Size(double.infinity, 36),
+                                ),
+                                child: const Text(
+                                  'Remove from Cart',
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Subtotal (1 Item)    \$${bookInfo!['price'].toString()}',
-                        style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pinkAccent,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Proceed to Checkout',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: Text(
-                      'No book in cart currently.',
-                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                      ],
                     ),
                   ),
-          ),
-        ],
-      ),
+                );
+              },
+            )
+          : Center(
+              child: Text(
+                'No books in cart currently.',
+                style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              ),
+            ),
+      bottomNavigationBar: cart.cartItems.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text(
+                  'Proceed to Checkout',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

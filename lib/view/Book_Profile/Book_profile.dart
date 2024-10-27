@@ -2,14 +2,16 @@ import 'package:bookstore_mad_project/common/color_extension.dart';
 import 'package:bookstore_mad_project/commonWidget/round_button.dart';
 import 'package:bookstore_mad_project/in_app_reading/BookRead.dart';
 import 'package:bookstore_mad_project/view/cart/cart.dart';
+import 'package:bookstore_mad_project/view/cart/cart_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 
 class BookDetailScreen extends StatelessWidget {
-  final Map Obj;
+  final Map<String, dynamic> Obj;
 
   const BookDetailScreen({super.key, required this.Obj});
 
@@ -174,11 +176,19 @@ class BookDetailScreen extends StatelessWidget {
                     Flexible(
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      BookCartScreen(bookInfo: Obj)));
+                          Provider.of<Cart>(context, listen: false)
+                              .addToCart(Obj);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Book added to cart successfully!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             BookCartScreen(bookInfo: Obj)));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.pink, // Example color

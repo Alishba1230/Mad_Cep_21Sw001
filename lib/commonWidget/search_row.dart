@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class SearchRow extends StatelessWidget {
-  final Map sObj;
+  final Map<String, dynamic> sObj;
   const SearchRow({super.key, required this.sObj});
   Future<void> addToWishlist(
       BuildContext context, Map<String, dynamic> book) async {

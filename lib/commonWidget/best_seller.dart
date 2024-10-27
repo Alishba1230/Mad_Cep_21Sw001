@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class BestSellerContain extends StatelessWidget {
-  final Map bObj;
+  final Map<String, dynamic> bObj;
   const BestSellerContain({super.key, required this.bObj});
 
   @override

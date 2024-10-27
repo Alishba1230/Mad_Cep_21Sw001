@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class TopPickContain extends StatelessWidget {
-  final Map iObj;
+  final Map<String, dynamic> iObj;
   const TopPickContain({super.key, required this.iObj});
 
   @override

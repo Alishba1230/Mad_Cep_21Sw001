@@ -223,7 +223,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   itemCount: ResultSearch.length,
                   itemBuilder: (context, index) {
-                    var sObj = ResultSearch[index] as Map? ?? {};
+                    var sObj =
+                        ResultSearch[index] as Map<String, dynamic>? ?? {};
                     return SearchRow(sObj: sObj);
                   }),
             ),

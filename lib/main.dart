@@ -1,15 +1,22 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
 import 'package:bookstore_mad_project/firebase_options.dart';
+import 'package:bookstore_mad_project/view/cart/cart_provider.dart';
 import 'package:bookstore_mad_project/view/onboarding/onboarding_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => Cart(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

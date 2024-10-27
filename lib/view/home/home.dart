@@ -139,8 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: topPickContent.length,
                               itemBuilder: (BuildContext context, int itemIndex,
                                   int pageViewIndex) {
-                                var iObj =
-                                    topPickContent[itemIndex] as Map? ?? {};
+                                var iObj = topPickContent[itemIndex]
+                                        as Map<String, dynamic>? ??
+                                    {};
                                 return TopPickContain(iObj: iObj);
                               },
                               options: CarouselOptions(
@@ -180,8 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               scrollDirection: Axis.horizontal,
                               itemCount: BestSellerContent.length,
                               itemBuilder: ((context, index) {
-                                var bObj =
-                                    BestSellerContent[index] as Map? ?? {};
+                                var bObj = BestSellerContent[index]
+                                        as Map<String, dynamic>? ??
+                                    {};
                                 return BestSellerContain(bObj: bObj);
                               }),
                             ),
@@ -243,7 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               scrollDirection: Axis.horizontal,
                               itemCount: RecentContent.length,
                               itemBuilder: ((context, index) {
-                                var rObj = RecentContent[index] as Map? ?? {};
+                                var rObj = RecentContent[index]
+                                        as Map<String, dynamic>? ??
+                                    {};
                                 return BestSellerContain(bObj: rObj);
                               }),
                             ),
