@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bookstore_mad_project/common/color_extension.dart';
-import 'cart_provider.dart'; // Import your Cart provider
+import 'cart_provider.dart';
 
 class BookCartScreen extends StatefulWidget {
   @override
@@ -12,8 +12,6 @@ class _BookCartScreenState extends State<BookCartScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
-
-    int quantity = 1;
 
     return Scaffold(
       backgroundColor: PColor.backG,
@@ -120,8 +118,7 @@ class _BookCartScreenState extends State<BookCartScreen> {
                               const SizedBox(height: 8),
                               ElevatedButton(
                                 onPressed: () {
-                                  cart.removeFromCart(
-                                      book); // Remove item from cart
+                                  cart.removeFromCart(book);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.pink,

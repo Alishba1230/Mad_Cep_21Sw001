@@ -2,6 +2,7 @@ import 'package:bookstore_mad_project/common/color_extension.dart';
 import 'package:bookstore_mad_project/view/account/account.dart';
 import 'package:bookstore_mad_project/view/cart/cart.dart';
 import 'package:bookstore_mad_project/view/home/home.dart';
+import 'package:bookstore_mad_project/view/onboarding/welcome_screen.dart';
 import 'package:bookstore_mad_project/view/ourBooks/ourBooks.dart';
 import 'package:bookstore_mad_project/view/search/search.dart';
 import 'package:bookstore_mad_project/wishlist/WishList.dart';
@@ -27,8 +28,8 @@ class _MainTabScreenState extends State<MainTabScreen>
     {"name": "Careers", "icon": Icons.business_center},
     {"name": "Sell With Us", "icon": Icons.attach_money},
     {"name": "Newsletter", "icon": Icons.newspaper},
-    {"name": "Pop-Up Leasing", "icon": Icons.open_in_new},
     {"name": "Account", "icon": Icons.account_circle},
+    {"name": "Log Out", "icon": Icons.logout},
   ];
   @override
   void initState() {
@@ -93,11 +94,19 @@ class _MainTabScreenState extends State<MainTabScreen>
                             selectMenu = 0;
                             sideMenuScaffoldkey.currentState?.closeEndDrawer();
                           }
-                          if (index == 7) {
+                          if (index == 6) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AccountScreen()));
+                            selectMenu = 0;
+                            sideMenuScaffoldkey.currentState?.closeEndDrawer();
+                          }
+                          if (index == 7) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => WelcomeScreen()));
                             selectMenu = 0;
                             sideMenuScaffoldkey.currentState?.closeEndDrawer();
                           } else {

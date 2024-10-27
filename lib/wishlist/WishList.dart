@@ -1,10 +1,11 @@
 import 'package:bookstore_mad_project/common/color_extension.dart';
+import 'package:bookstore_mad_project/view/cart/cart_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 
 class WishListScreen extends StatefulWidget {
   @override
@@ -12,36 +13,8 @@ class WishListScreen extends StatefulWidget {
 }
 
 class _WishListScreenState extends State<WishListScreen> {
-  List<Map<String, dynamic>> books = [
-    // {
-    //   'name': "Pride and Prejudice",
-    //   'author': "Jane Austen",
-    //   'rating': 4.03,
-    //   'price': 40,
-    //   'img': 'assets/img/2.jpg',
-    // },
-    // {
-    //   'name': "A Curse of True Love",
-    //   'author': "Stephanie Garber",
-    //   'rating': 4.26,
-    //   'price': 34,
-    //   'img': 'assets/img/3.jpg',
-    // },
-    // {
-    //   'name': "Finale",
-    //   'author': "Stephanie Garber",
-    //   'rating': 4.33,
-    //   'price': 37,
-    //   'img': 'assets/img/1.jpg',
-    // },
-    // {
-    //   'name': "Powerless",
-    //   'author': "Lauren Roberts",
-    //   'rating': 4.33,
-    //   'price': 45,
-    //   'img': 'assets/img/b1.jpg',
-    // },
-  ];
+  List<Map<String, dynamic>> books = [];
+
   @override
   void initState() {
     super.initState();
@@ -59,10 +32,28 @@ class _WishListScreenState extends State<WishListScreen> {
     List<Map<String, dynamic>> wishlistBooks = [];
 
     for (var doc in querySnapshot.docs) {
-      wishlistBooks.add(doc.data() as Map<String, dynamic>);
+      wishlistBooks.add({
+        ...doc.data() as Map<String, dynamic>,
+        'id': doc.id, // Store the document ID for deletion
+      });
     }
+
     setState(() {
       books = wishlistBooks;
+    });
+  }
+
+  Future<void> deleteBook(String bookId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    CollectionReference wishlistCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('wishlist');
+
+    await wishlistCollection.doc(bookId).delete();
+
+    setState(() {
+      books.removeWhere((book) => book['id'] == bookId);
     });
   }
 
@@ -99,6 +90,7 @@ class _WishListScreenState extends State<WishListScreen> {
         child: ListView.builder(
           itemCount: books.length,
           itemBuilder: (context, index) {
+            Map<String, dynamic> ref = books[index];
             return Container(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
               child: Row(
@@ -113,98 +105,85 @@ class _WishListScreenState extends State<WishListScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(
-                    width: 15,
-                  ),
+                  const SizedBox(width: 15),
                   Expanded(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Text(
-                        books[index]["name"].toString(),
-                        maxLines: 2,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(height: 5),
+                        Text(
+                          books[index]["name"].toString(),
+                          maxLines: 1,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
                             color: PColor.text,
                             fontSize: 17,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Text(
-                        books[index]["author"].toString(),
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          books[index]["author"].toString(),
+                          maxLines: 1,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
                             color: PColor.subtitle,
                             fontSize: 11,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Text(
-                        'Price: \$${books[index]['price'].toString()}',
-                        maxLines: 1,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Price: \$${books[index]['price'].toString()}',
+                          maxLines: 1,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
                             color: PColor.subtitle,
                             fontSize: 11,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(
-                        height: 3,
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      Text(
-                        books[index]['description'].toString(),
-                        maxLines: 2,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
+                        Text(
+                          books[index]['description'].toString(),
+                          maxLines: 2,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
                             color: PColor.subtitle,
                             fontSize: 10,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      IgnorePointer(
-                        ignoring: true,
-                        child: RatingBar.builder(
-                          initialRating: double.tryParse(
-                                  books[index]["rating"].toString()) ??
-                              1,
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          allowHalfRating: true,
-                          itemCount: 5,
-                          itemSize: 15,
-                          itemPadding:
-                              const EdgeInsets.symmetric(horizontal: 1.0),
-                          itemBuilder: (context, _) => Icon(
-                            Icons.star,
-                            color: PColor.primaryPink,
+                            fontWeight: FontWeight.w700,
                           ),
-                          onRatingUpdate: (rating) {},
                         ),
-                      ),
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 27.0,
-                              decoration: BoxDecoration(
+                        IgnorePointer(
+                          ignoring: true,
+                          child: RatingBar.builder(
+                            initialRating: double.tryParse(
+                                    books[index]["rating"].toString()) ??
+                                1,
+                            minRating: 1,
+                            direction: Axis.horizontal,
+                            allowHalfRating: true,
+                            itemCount: 5,
+                            itemSize: 15,
+                            itemPadding:
+                                const EdgeInsets.symmetric(horizontal: 1.0),
+                            itemBuilder: (context, _) => Icon(
+                              Icons.star,
+                              color: PColor.primaryPink,
+                            ),
+                            onRatingUpdate: (rating) {},
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 30.0,
+                                decoration: BoxDecoration(
                                   gradient:
                                       LinearGradient(colors: PColor.button),
                                   borderRadius: BorderRadius.circular(10),
@@ -213,30 +192,54 @@ class _WishListScreenState extends State<WishListScreen> {
                                       color: PColor.primaryPink,
                                       blurRadius: 2,
                                       offset: const Offset(0, 2),
-                                    )
-                                  ]),
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
+                                    ),
+                                  ],
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Provider.of<Cart>(context, listen: false)
+                                        .addToCart(ref);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Book added to cart successfully!'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent),
-                                child: const Text(
-                                  'Add to Cart',
-                                  style: TextStyle(
+                                    shadowColor: Colors.transparent,
+                                  ),
+                                  child: const Text(
+                                    'Add to Cart',
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 9),
+                                      fontSize: 9,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                        ],
-                      )
-                    ],
-                  )),
+                            const SizedBox(width: 8),
+                            Container(
+                              height: 30.0,
+                              child: IconButton(
+                                onPressed: () {
+                                  deleteBook(books[index]['id']);
+                                },
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: PColor.primaryPink,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             );

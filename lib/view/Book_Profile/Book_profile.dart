@@ -184,11 +184,6 @@ class BookDetailScreen extends StatelessWidget {
                               duration: Duration(seconds: 2),
                             ),
                           );
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) =>
-                          //             BookCartScreen(bookInfo: Obj)));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.pink, // Example color
