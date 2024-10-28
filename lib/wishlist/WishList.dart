@@ -62,6 +62,7 @@ class _WishListScreenState extends State<WishListScreen> {
     var media = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: PColor.backG,
       appBar: AppBar(
         title: const Text(
           "WishList",
