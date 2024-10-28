@@ -86,7 +86,7 @@ class SearchRow extends StatelessWidget {
               ),
               Text(
                 sObj["name"].toString(),
-                maxLines: 2,
+                maxLines: 1,
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     color: PColor.text,

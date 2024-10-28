@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -86,6 +87,7 @@ class BookDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16.0),
               Text(
+                textAlign: TextAlign.center,
                 Obj["name"].toString(),
                 style: const TextStyle(
                   fontSize: 20,
@@ -98,6 +100,26 @@ class BookDetailScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
+                ),
+              ),
+              const SizedBox(
+                height: 3,
+              ),
+              IgnorePointer(
+                ignoring: true,
+                child: RatingBar.builder(
+                  initialRating: double.tryParse(Obj["rating"].toString()) ?? 1,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemSize: 25,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 1.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: Color(0xffefbf04),
+                  ),
+                  onRatingUpdate: (rating) {},
                 ),
               ),
               const SizedBox(height: 15.0),
@@ -121,7 +143,7 @@ class BookDetailScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'In App Reading',
+                    'E-Book',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -130,7 +152,7 @@ class BookDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24.0),
+              const SizedBox(height: 10.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(

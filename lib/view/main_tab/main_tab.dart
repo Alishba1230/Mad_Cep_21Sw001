@@ -25,8 +25,6 @@ class _MainTabScreenState extends State<MainTabScreen>
     {"name": "Home", "icon": Icons.home},
     {"name": "Our Books", "icon": Icons.book},
     {"name": "Our Store", "icon": Icons.storefront},
-    {"name": "Careers", "icon": Icons.business_center},
-    {"name": "Sell With Us", "icon": Icons.attach_money},
     {"name": "Newsletter", "icon": Icons.newspaper},
     {"name": "Account", "icon": Icons.account_circle},
     {"name": "Log Out", "icon": Icons.logout},
@@ -71,7 +69,6 @@ class _MainTabScreenState extends State<MainTabScreen>
                   children: menu.map((mObj) {
                     var index = menu.indexOf(mObj);
                     return Container(
-                      // margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                       padding: const EdgeInsets.symmetric(
                           vertical: 15, horizontal: 20),
                       decoration: selectMenu == index
@@ -80,7 +77,6 @@ class _MainTabScreenState extends State<MainTabScreen>
                               boxShadow: [
                                   BoxShadow(
                                       color: PColor.primaryPink,
-                                      //blurRadius: 10,
                                       offset: Offset(0, 3))
                                 ])
                           : null,
@@ -94,7 +90,7 @@ class _MainTabScreenState extends State<MainTabScreen>
                             selectMenu = 0;
                             sideMenuScaffoldkey.currentState?.closeEndDrawer();
                           }
-                          if (index == 6) {
+                          if (index == 4) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -102,7 +98,7 @@ class _MainTabScreenState extends State<MainTabScreen>
                             selectMenu = 0;
                             sideMenuScaffoldkey.currentState?.closeEndDrawer();
                           }
-                          if (index == 7) {
+                          if (index == 5) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
